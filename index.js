@@ -1,8 +1,21 @@
 var express = require('express');
 var app = express();
 
-app.get('/', function (req, res) {
-  res.send('Hello World!');
+
+
+app.get('/', function(request, response) {
+    response.send("<h1>this is the homepage</h1>");
+  });
+
+app.get('/hello', function (request, response) {
+  
+  if (request.query.name) {
+      response.send('<h1>Hello</h1>' + request.query.name);
+  }
+  else {
+      response.send('<h1>Hello World!</h1>'); 
+  }
+  
 });
 
 
