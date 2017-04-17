@@ -1,0 +1,66 @@
+var express = require('express');
+var bodyParser = require('body-parser');
+
+var app = express();
+
+app.use(bodyParser.urlencoded({extended: true}));
+
+// app.use(function(request, response, next) {
+//     var query = request.url.split('?')[1];
+    
+//     // name=Ziad&lastName=Saab
+    
+//     var parts = query.split('&');
+    
+//     // ['name=Ziad', 'lastName=Saab']
+    
+//     var myQuery = {};
+    
+//     parts.forEach(function(part) {
+//         // name=Ziad
+//         var stuff = part.split('=');
+        
+//         myQuery[stuff[0]] = stuff[1];
+//     });
+    
+//     request.myQuery = myQuery;
+    
+//     next();
+// });
+
+app.get('/', function(request, response) {
+    response.send("<h1>this is the homepage</h1>");
+});
+
+app.get('/greeting', function(request, response) {
+    
+    if (request.myQuery.firstName) {
+        response.send("<h1>Hello " + request.myQuery.firstName + ", you are looking nice today</h1>");
+    }
+    else {
+        response.send("<h1>Hello, you are looking nice today</h1>");
+    }
+    
+});
+
+app.get('/r/:subreddit', function(request, response) {
+    
+    response.send('<h1>Welcome to the ' + request.params.subreddit + ' subreddit!</h1>');
+});
+
+app.get('/signup', function(request, response) {
+    response.send(`
+    <form method="POST" action="/createUser">
+        <p>user <input type="text" name="username"></p>
+        <p>pass <input type="password" name="password"></p>
+        <button type="submit">signup</button>
+    </form>
+    `);
+});
+
+app.post('/createUser', function(request, response) {
+    console.log(request.body);
+    response.send('i received your data mr. or ms. ' + request.body.username);
+});
+
+app.listen(8080);
