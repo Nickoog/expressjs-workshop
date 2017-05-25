@@ -1,0 +1,12 @@
+extends layout.pug
+block title
+    div(id="posts")
+        h1 List of posts
+        
+block content
+    ul(class="post-list")
+        each post in posts
+            li(class="post-item")
+                h2(class="post-item__title")
+                    a(href=post.post_url)= post.post_title
+                p Created by #{post.user.username}

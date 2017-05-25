@@ -1,6 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-var RedditAPI = require('../reddit-nodejs-api/reddit');
+var RedditAPI = require('./reddit');
 var app = express();
 var mysql = require('promise-mysql');
 
@@ -11,6 +11,10 @@ var connection = mysql.createPool({
     database: 'reddit_api',
     connectionLimit: 10
 });
+
+var myReddit = new RedditAPI(connection);
+
+app.use(bodyParser.urlencoded({extended: true}));// cela permet de mettre fin a une demande
  
 
 app.get('/', function(request, response) {
@@ -20,10 +24,10 @@ app.get('/', function(request, response) {
 app.get('/hello', function (request, response) {
   
     if (request.query.name) {
-        response.send('<h1>Hello</h1>' + request.query.name);
+        response.send("<h1>Hello</h1>" + request.query.name);
     }
     else {
-        response.send('<h1>Hello World!</h1>'); 
+        response.send("<h1>Hello World!</h1>"); 
     }
   
   });
@@ -58,61 +62,32 @@ app.get('/calculator/:operation',function(request,response) {
     
   });
 
-var myReddit = new RedditAPI(connection);
+app.set('view engine', 'pug');
 
 app.get('/posts', function(request, response){
 
       myReddit.getAllPosts()
           .then(function(posts) {
             console.log(posts)
-              var output = `
-                <div id="posts">
-                  <h1> List of posts </h1>
-                  <ul class="messages-list">
-                    ${posts.map(function(post){
-                      return `
-                        <li class="post-item">
-                          <h2 class="post-item__${post.post_title}">
-                            <a href="${post.post_url}">${post.post_title}</a>
-                          </h2>
-                          <p>Created by ${post.user.username}</p>
-                        </li>
-                      `
-                    })}
-                  </ul>
-                </div>
-              `
-              response.send(output);
+              response.render('post-list', {posts: posts});
           });
   });
   
 
 app.get('/new-post', function(request, response) {
-    response.send(`
-        <form action="/createPost" method="POST"><!-- why does it say method="POST" ?? -->
-          <p>
-            <input type="text" name="url" placeholder="Enter a URL to content">
-          </p>
-          <p>
-            <input type="text" name="title" placeholder="Enter the title of your content">
-          </p>
-          <button type="submit">Create!</button>
-        </form>
-    `);
+    response.render('create-content');
 });
 
-app.post('/createPost', function(request, response) {
+app.post('/createContent', function(request, response) {
+  // console.log();
     myReddit.createPost({
         title: request.body.title,
         url: request.body.url,
         userId: 1,
+        subredditId: 1,
     }).then(function(posts){
-        response.use
+        response.redirect('posts');
     })
-        
-            
-        
-    
 })
 
 
